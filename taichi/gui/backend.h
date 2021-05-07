@@ -139,20 +139,105 @@ struct DrawList {
 // A backend context is a graphical context and a window that accepts inputs
 class BackendContext {
  public:
+  // Support query
+  virtual bool is_supported() const {
+    return false;
+  };
+
+  virtual void set_window_size(uint32_t width, uint32_t height) {
+  }
+  virtual void set_window_title(std::string title) {
+  }
+
   // Presentation & rendering loop
-  virtual bool new_frame() = 0;
-  virtual void poll_events() = 0;
-  virtual void submit_draw_list(DrawList &list) = 0;
-  virtual void present_frame() = 0;
+  virtual bool new_frame() {
+  }
+  virtual void poll_events() {
+  }
+  virtual void submit_draw_list(DrawList &list) {
+  }
+  virtual void present_frame() {
+  }
 
   // Resources
-  virtual uint32_t add_image(uint8_t *image, size_t width, size_t height) = 0;
-  virtual uint32_t add_image(float *image, size_t width, size_t height) = 0;
+  // (Image will be copied to backend, either be on CPU memory or get copied
+  // into GPU memory)
+  // (Image id of 0 is always not bound / not textured)
+  virtual uint32_t add_image(uint8_t *image, size_t width, size_t height) {
+    return 0;
+  }
+  virtual uint32_t add_image(float *image, size_t width, size_t height) {
+    return 0;
+  }
+  virtual uint32_t add_image(void *image,
+                             size_t width,
+                             size_t height,
+                             uint8_t num_channels,
+                             uint8_t channel_bits) {
+    return 0;
+  }
+  virtual void remove_image(uint32_t image_id) {
+  }
 
   // Inputs
-  virtual bool is_key_down(std::string key) = 0;
+  virtual bool is_key_down(std::string key) {
+    return false;
+  }
 
-  virtual ~BackendContext() = 0;
+  virtual ~BackendContext() {
+  }
+};
+
+#ifdef TI_WITH_OPENGL
+#include <glad/glad.h>
+#include "GLFW/glfw3.h"
+#endif
+
+// Platform backends
+class GLFWBackendContext : BackendContext {
+ private:
+#ifdef TI_WITH_OPENGL
+  GLFWwindow *window;
+
+  uint32_t width = 400, height = 400;
+
+  std::vector<GLuint> gl_texture_handles;
+#endif
+
+ public:
+#ifdef TI_WITH_OPENGL
+  GLFWBackendContext();
+
+  // Support query
+  bool is_supported() const override;
+
+  void set_window_size(uint32_t width, uint32_t height) override;
+  void set_window_title(std::string title) override;
+
+  // Presentation & rendering loop
+  bool new_frame() override;
+  void poll_events() override;
+  void submit_draw_list(DrawList &list) override;
+  void present_frame() override;
+
+  // Resources
+  // (Image will be copied to backend, either be on CPU memory or get copied
+  // into GPU memory)
+  // (Image id of 0 is always not bound / not textured)
+  uint32_t add_image(uint8_t *image, size_t width, size_t height) override;
+  uint32_t add_image(float *image, size_t width, size_t height) override;
+  uint32_t add_image(void *image,
+                     size_t width,
+                     size_t height,
+                     uint8_t num_channels,
+                     uint8_t channel_bits) override;
+  void remove_image(uint32_t image_id) override;
+
+  // Inputs
+  bool is_key_down(std::string key) override;
+
+  ~GLFWBackendContext();
+#endif
 };
 
 }  // namespace gui
