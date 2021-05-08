@@ -26,28 +26,6 @@ TI_NAMESPACE_BEGIN
 
 namespace gui {
 
-enum class DrawMode : uint8_t {
-  // No ordering requirement
-  TRIANGLES,
-  // Must be in this order: (0, 0) -> (1, 0) -> (1, 1) -> (0, 1)
-  AXIS_ALIGNED_BOX,
-  // Must be in this order: vertex -> control point -> vertex (Quadratic bezier)
-  BEZIER,        // Render the convex side
-  BEZIER_INSET,  // Render the concave side
-};
-
-struct DrawCmd {
-  DrawMode mode;
-
-  uint32_t vertex_offset;
-  uint32_t first_index;
-  uint32_t elem_count;
-  uint32_t texture_id;
-
-  bool enable_clipping = false;
-  Pos clip_min, clip_max;
-};
-
 struct Pos {
   float x, y;
 };
@@ -60,6 +38,13 @@ struct Vertex {
   Pos p;
   Pos uv;
   Color c;
+};
+
+struct DrawCmd {
+  uint32_t vertex_offset;
+  uint32_t first_index;
+  uint32_t elem_count;
+  uint32_t texture_id;
 };
 
 constexpr Pos static_circle[] = {{1.0, 0.0},
@@ -82,7 +67,10 @@ constexpr Pos static_circle[] = {{1.0, 0.0},
 struct DrawList {
   std::vector<DrawCmd> cmds;
   std::vector<Vertex> vertices;
-  std::vector<uint32_t> indicies;
+  std::vector<uint16_t> indicies;
+
+  bool enable_clipping = false;
+  Pos clip_min, clip_max;
 
   // Helpers to render common primitives
   inline DrawCmd &add_rectangle(Pos p0,
@@ -92,10 +80,16 @@ struct DrawList {
     uint32_t vertex_head = vertices.size();
     uint32_t index_head = indicies.size();
     vertices.push_back({p0, {}, color});
+    vertices.push_back({{p1.x, p0.y}, {}, color});
     vertices.push_back({p1, {}, color});
+    vertices.push_back({{p0.x, p1.y}, {}, color});
     indicies.push_back(0);
     indicies.push_back(1);
-    cmds.push_back({DrawMode::AXIS_ALIGNED_BOX, vertex_head, index_head, 1, 0});
+    indicies.push_back(2);
+    indicies.push_back(0);
+    indicies.push_back(2);
+    indicies.push_back(3);
+    cmds.push_back({vertex_head, index_head, 2, 0});
   }
 
   inline DrawCmd &add_circle(Pos p0,
@@ -106,7 +100,7 @@ struct DrawList {
     uint32_t index_head = indicies.size();
     vertices.push_back({p0, {}, color});
 
-    for (int i = 0; i < sizeof(static_circle); i++) {
+    for (int i = 0; i < 16; i++) {
       Pos p = static_circle[i];
       vertices.push_back(Vertex{p, {}, color});
       indicies.push_back(0);
@@ -114,7 +108,7 @@ struct DrawList {
       indicies.push_back(1 + (i + 1) % 16);
     }
 
-    cmds.push_back({DrawMode::TRIANGLES, vertex_head, index_head, 16, 0});
+    cmds.push_back({vertex_head, index_head, 16, 0});
   }
 
   inline DrawCmd &add_triangle(Pos v0,
@@ -125,7 +119,17 @@ struct DrawList {
                                Pos uv2,
                                Color c0,
                                Color c1,
-                               Color c2) {
+                               Color c2,
+                               uint32_t texture_id) {
+    uint32_t vertex_head = vertices.size();
+    uint32_t index_head = indicies.size();
+    vertices.push_back({v0, uv0, c0});
+    vertices.push_back({v1, uv1, c1});
+    vertices.push_back({v2, uv2, c2});
+    indicies.push_back(0);
+    indicies.push_back(1);
+    indicies.push_back(2);
+    cmds.push_back({vertex_head, index_head, 1, texture_id});
   }
 
   inline DrawCmd &add_image(Pos p0,
@@ -133,6 +137,19 @@ struct DrawList {
                             Pos uv0,
                             Pos uv1,
                             uint32_t texture_id) {
+    uint32_t vertex_head = vertices.size();
+    uint32_t index_head = indicies.size();
+    vertices.push_back({p0, uv0, {255, 255, 255, 255}});
+    vertices.push_back({{p1.x, p0.y}, {uv1.x, uv0.y}, {255, 255, 255, 255}});
+    vertices.push_back({p1, uv1, {255, 255, 255, 255}});
+    vertices.push_back({{p0.x, p1.y}, {uv0.x, uv1.y}, {255, 255, 255, 255}});
+    indicies.push_back(0);
+    indicies.push_back(1);
+    indicies.push_back(2);
+    indicies.push_back(0);
+    indicies.push_back(2);
+    indicies.push_back(3);
+    cmds.push_back({vertex_head, index_head, 2, texture_id});
   }
 };
 
@@ -151,6 +168,7 @@ class BackendContext {
 
   // Presentation & rendering loop
   virtual bool new_frame() {
+    return false;
   }
   virtual void poll_events() {
   }
@@ -202,6 +220,13 @@ class GLFWBackendContext : BackendContext {
   uint32_t width = 400, height = 400;
 
   std::vector<GLuint> gl_texture_handles;
+
+  GLuint shader_program;
+  GLuint streaming_vertices;
+  GLuint streaming_indicies;
+  GLuint streaming_drawcmds;
+
+  GLuint vertex_array_object;
 #endif
 
  public:
