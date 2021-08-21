@@ -439,6 +439,7 @@ class VulkanDevice : public GraphicsDevice {
   VkDevice device_;
   VkPhysicalDevice physical_device_;
   VmaAllocator allocator_;
+  VmaPool vma_pool_export_;
 
   VkQueue compute_queue_;
   VkCommandPool compute_pool_;

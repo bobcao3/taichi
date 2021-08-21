@@ -848,6 +848,10 @@ DeviceAllocation VulkanDevice::allocate_memory(const AllocParams &params) {
     alloc_info.usage = VMA_MEMORY_USAGE_GPU_ONLY;
   }
 
+  if (params.export_sharing) {
+    alloc_info.pool = vma_pool_export_;
+  }
+
   BAIL_ON_VK_BAD_RESULT(
       vmaCreateBuffer(allocator_, &buffer_info, &alloc_info, &alloc.buffer,
                       &alloc.allocation, &alloc.alloc_info),
@@ -1340,6 +1344,42 @@ void VulkanDevice::create_vma_allocator() {
   allocatorInfo.pVulkanFunctions = &vk_vma_functions;
 
   vmaCreateAllocator(&allocatorInfo, &allocator_);
+
+  {
+    VkBufferCreateInfo export_buf_create_info = {
+        VK_STRUCTURE_TYPE_BUFFER_CREATE_INFO};
+    export_buf_create_info.size = 1024;  // Whatever.
+    export_buf_create_info.usage = VK_BUFFER_USAGE_STORAGE_BUFFER_BIT |
+                                   VK_BUFFER_USAGE_TRANSFER_DST_BIT |
+                                   VK_BUFFER_USAGE_TRANSFER_SRC_BIT;
+
+    VmaAllocationCreateInfo alloc_create_info = {};
+    alloc_create_info.usage = VMA_MEMORY_USAGE_GPU_ONLY;
+
+    uint32_t memTypeIndex;
+    vmaFindMemoryTypeIndexForBufferInfo(allocator_, &export_buf_create_info,
+                                        &alloc_create_info, &memTypeIndex);
+
+    static VkExportMemoryAllocateInfoKHR export_alloc_pnext;
+    export_alloc_pnext.sType =
+        VK_STRUCTURE_TYPE_EXPORT_MEMORY_ALLOCATE_INFO_KHR;
+    export_alloc_pnext.pNext = nullptr;
+#ifdef _WIN64
+    export_alloc_pnext.handleTypes =
+        VK_EXTERNAL_MEMORY_HANDLE_TYPE_OPAQUE_WIN32_BIT;
+#else
+    export_alloc_pnext.handleTypes =
+        VK_EXTERNAL_MEMORY_HANDLE_TYPE_OPAQUE_FD_BIT;
+#endif
+
+    VmaPoolCreateInfo pool_info{};
+    pool_info.memoryTypeIndex = memTypeIndex;
+    pool_info.blockSize = 128ull * 1024 * 1024;  // 128MB
+    pool_info.maxBlockCount = 16;
+    pool_info.pMemoryAllocateNext = &export_alloc_pnext;
+
+    vmaCreatePool(allocator_, &pool_info, &vma_pool_export_);
+  }
 }
 
 VulkanSurface::VulkanSurface(VulkanDevice *device) : device_(device) {

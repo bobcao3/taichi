@@ -260,6 +260,7 @@ class Device {
     uint64_t size{0};
     bool host_write{false};
     bool host_read{false};
+    bool export_sharing{false};
   };
 
   virtual DeviceAllocation allocate_memory(const AllocParams &params) = 0;
