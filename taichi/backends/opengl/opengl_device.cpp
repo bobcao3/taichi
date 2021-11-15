@@ -150,6 +150,7 @@ void GLCommandList::bind_resources(ResourceBinder *_binder) {
     auto cmd = std::make_unique<CmdBindBufferToIndex>();
     cmd->buffer = buffer;
     cmd->index = binding;
+    printf("[gl bind_resources] %u, %u\n", buffer, binding);
     recorded_commands_.push_back(std::move(cmd));
   }
 }
