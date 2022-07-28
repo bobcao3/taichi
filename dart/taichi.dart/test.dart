@@ -7,7 +7,7 @@ import 'ticore_bindings.dart' as ticore;
 
 final compiledLibDir = p.join(Directory.current.path, "../../python/taichi/_lib/runtime");
 final runtimeTmpDir = p.join(Directory.current.path, "tmp");
-final ticoreImpl = ticore.TaichiCore(DynamicLibrary.open(p.join(Directory.current.path, "../../build/libtaichi_c_api.dylib")));
+final ticoreImpl = ticore.TaichiCore(DynamicLibrary.open(p.join(Directory.current.path, "../../build/taichi_c_api.dll")));
 
 void main() {
   // Initialize Taichi globals
@@ -20,4 +20,7 @@ void main() {
   // Create taichi::lang::Program
   final program = ticoreImpl.ti_program_create();
   ticoreImpl.ti_program_materialize_runtime(program);
+
+  // Clean-up
+  ticoreImpl.ti_program_release(program);
 }
