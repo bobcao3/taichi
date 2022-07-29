@@ -1,0 +1,10 @@
+output: 'ticore_bindings.dart'
+headers:
+  entry-points:
+    - '../../c_api/include/taichi/compiler/program.h'
+name: 'TaichiCore'
+description: 'Bindings to Taichi compiler CAPI'
+comments:
+  style: doxygen
+  length: full
+
