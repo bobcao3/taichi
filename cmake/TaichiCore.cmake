@@ -219,7 +219,6 @@ if(DEFINED ENV{LLVM_DIR})
     message("Getting LLVM_DIR=${LLVM_DIR} from the environment variable")
 endif()
 
-
 add_subdirectory(taichi/common)
 target_link_libraries(${CORE_LIBRARY_NAME} PRIVATE taichi_common)
 
@@ -300,7 +299,6 @@ if(TI_WITH_LLVM)
     target_link_libraries(${CORE_LIBRARY_NAME} PRIVATE wasm_runtime)
 endif()
 
-
 add_subdirectory(taichi/util)
 target_link_libraries(${CORE_LIBRARY_NAME} PRIVATE taichi_util)
 
@@ -373,7 +371,6 @@ if (TI_WITH_VULKAN)
     add_subdirectory(taichi/runtime/program_impls/vulkan)
     target_link_libraries(${CORE_LIBRARY_NAME} PRIVATE vulkan_program_impl)
 endif ()
-
 
 # Optional dependencies
 

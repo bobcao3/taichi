@@ -100,9 +100,12 @@ void VulkanProgramImpl::materialize_runtime(MemoryPool *memory_pool,
 #ifndef ANDROID
   GLFWwindow *glfw_window = nullptr;
 
+  TI_TRACE("before glfwInit");
   if (glfwInit()) {
+    TI_TRACE("what the stuff");
     glfwSetErrorCallback(glfw_error_callback);
 
+    TI_TRACE("before glfwCreateWindow");
     // glfw init success
     glfwWindowHint(GLFW_VISIBLE, GLFW_FALSE);
     glfwWindowHint(GLFW_CLIENT_API, GLFW_NO_API);
@@ -113,6 +116,8 @@ void VulkanProgramImpl::materialize_runtime(MemoryPool *memory_pool,
     }
   }
 #endif
+
+  TI_TRACE("A");
 
   VulkanDeviceCreator::Params evd_params;
   if (config->vk_api_version.empty()) {
@@ -150,14 +155,19 @@ void VulkanProgramImpl::materialize_runtime(MemoryPool *memory_pool,
   }
 #endif
 
+  TI_TRACE("B");
   embedded_device_ = std::make_unique<VulkanDeviceCreator>(evd_params);
 
+  TI_TRACE("C");
   gfx::GfxRuntime::Params params;
   params.host_result_buffer = *result_buffer_ptr;
   params.device = embedded_device_->device();
+  TI_TRACE("D");
   vulkan_runtime_ = std::make_unique<gfx::GfxRuntime>(std::move(params));
+  TI_TRACE("E");
   snode_tree_mgr_ =
       std::make_unique<gfx::SNodeTreeManager>(vulkan_runtime_.get());
+  TI_TRACE("F");
 }
 
 void VulkanProgramImpl::compile_snode_tree_types(SNodeTree *tree) {

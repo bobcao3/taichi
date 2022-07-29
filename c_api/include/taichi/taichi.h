@@ -4,6 +4,8 @@
 
 #include "taichi/taichi_core.h"
 
+#include "taichi/compiler/program.h"
+
 #if TI_WITH_VULKAN
 #define VK_NO_PROTOTYPES 1
 #include "taichi/taichi_vulkan.h"

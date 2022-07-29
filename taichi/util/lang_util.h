@@ -12,6 +12,8 @@
 
 TLANG_NAMESPACE_BEGIN
 
+void set_taichi_dirs(const std::string &compiled_lib_dir, const std::string &runtime_tmp_dir);
+
 real get_cpu_frequency();
 
 extern real default_measurement_time;

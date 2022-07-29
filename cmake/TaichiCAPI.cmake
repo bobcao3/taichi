@@ -26,6 +26,7 @@ target_include_directories(${TAICHI_C_API_NAME}
         # Used only when building the library:
         ${PROJECT_SOURCE_DIR}
         ${PROJECT_SOURCE_DIR}/c_api/include
+        ${CMAKE_CURRENT_SOURCE_DIR}/external/eigen
         ${CMAKE_CURRENT_SOURCE_DIR}/external/spdlog/include
         ${CMAKE_CURRENT_SOURCE_DIR}/external/Vulkan-Headers/include
         ${CMAKE_CURRENT_SOURCE_DIR}/external/VulkanMemoryAllocator/include

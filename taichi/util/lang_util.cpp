@@ -16,6 +16,11 @@ CompileConfig default_compile_config;
 std::string compiled_lib_dir;
 std::string runtime_tmp_dir;
 
+void set_taichi_dirs(const std::string &_compiled_lib_dir, const std::string &_runtime_tmp_dir) {
+  compiled_lib_dir = _compiled_lib_dir;
+  runtime_tmp_dir = _runtime_tmp_dir;
+}
+
 std::string runtime_lib_dir() {
   std::string folder;
   if (!compiled_lib_dir.empty()) {
