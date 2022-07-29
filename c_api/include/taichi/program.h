@@ -1,13 +1,11 @@
-#ifndef __INCLUDE_TAICHI_CFFI_PROGRAM_H__
-#define __INCLUDE_TAICHI_CFFI_PROGRAM_H__
+#ifndef __INCLUDE_C_API_TAICHI_PROGRAM_H__
+#define __INCLUDE_C_API_TAICHI_PROGRAM_H__
 
 #ifdef __cplusplus
 extern "C" {
-#include "taichi/taichi_platform.h"
-#else
-#define TI_DLL_EXPORT
-#define TI_API_CALL
-#endif
+#endif // __cplusplus
+
+#include "taichi_platform.h"
 
 typedef struct ti_program_class *ti_program;
 
@@ -49,5 +47,5 @@ TI_DLL_EXPORT void TI_API_CALL ti_program_materialize_runtime(ti_program program
 
 #ifdef __cplusplus
 }
-#endif
-#endif
+#endif // __cplusplus
+#endif // __INCLUDE_C_API_TAICHI_PROGRAM_H__

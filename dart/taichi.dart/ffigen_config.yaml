@@ -1,7 +1,11 @@
-output: 'ticore_bindings.dart'
+output: 'lib/src/ticore_bindings.dart'
 headers:
   entry-points:
-    - '../../c_api/include/taichi/compiler/program.h'
+    - '../../c_api/include/taichi/program.h'
+    - '../../c_api/include/taichi/frontend_ir.h'
+  include-directives:
+    - '**program.h'
+    - '**frontend_ir.h'
 name: 'TaichiCore'
 description: 'Bindings to Taichi compiler CAPI'
 comments:
