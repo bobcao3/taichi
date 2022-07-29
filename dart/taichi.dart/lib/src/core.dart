@@ -9,7 +9,7 @@ final compiledLibDir = p.join(Directory.current.path, "../../python/taichi/_lib/
 final runtimeTmpDir = p.join(Directory.current.path, "tmp");
 final ticoreImpl = ticore.TaichiCore(DynamicLibrary.open(p.join(Directory.current.path, "../../build/taichi_c_api.dll")));
 
-Pointer<ticore.ti_program_class> ?program;
+ticore.ti_program ?program;
 
 void init() {
   // Initialize Taichi globals
