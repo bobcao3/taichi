@@ -1,12 +1,15 @@
-#pragma once
+#ifndef __INCLUDE_TAICHI_TAICHI_H__
+#define __INCLUDE_TAICHI_TAICHI_H__
 
-#include "taichi/taichi_platform.h"
+#include "taichi_platform.h"
 
-#include "taichi/taichi_core.h"
+#include "taichi_core.h"
 
-#include "taichi/compiler/program.h"
+#include "program.h"
 
 #if TI_WITH_VULKAN
 #define VK_NO_PROTOTYPES 1
-#include "taichi/taichi_vulkan.h"
+#include "taichi_vulkan.h"
 #endif  // TI_WITH_VULKAN
+
+#endif // __INCLUDE_TAICHI_TAICHI_H__

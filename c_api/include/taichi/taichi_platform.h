@@ -1,4 +1,5 @@
-#pragma once
+#ifndef __INCLUDE_TAICHI_TAICHI_PLATFORM_H
+#define __INCLUDE_TAICHI_TAICHI_PLATFORM_H
 
 // TO KEEP THE INCLUDE DEPENDENCY CLEAN, PLEASE DO NOT INCLUDE ANY OTHER
 // TAICHI HEADERS INTO THIS ONE.
@@ -53,3 +54,5 @@ static_assert(false, "32-bit Windows systems are not supported")
 
 #include <stddef.h>
 #include <stdint.h>
+
+#endif // __INCLUDE_TAICHI_TAICHI_PLATFORM_H
