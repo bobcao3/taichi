@@ -23,9 +23,8 @@ void ti_program_materialize_runtime(ti_program program) {
     p->materialize_runtime();
 }
 
-ti_program ti_program_create(void) {
-    assert(taichi::lang::vulkan::is_vulkan_api_available());
-    Program *p = new Program(Arch::vulkan);
+ti_program ti_program_create(TiArch arch) {
+    Program *p = new Program(Arch(arch));
     RefCounted::new_ref_counted(p);
     return (ti_program)p;
 }

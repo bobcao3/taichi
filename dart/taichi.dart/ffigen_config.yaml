@@ -1,9 +1,9 @@
 output: 'lib/src/ticore_bindings.dart'
 headers:
   entry-points:
-    - '../../c_api/include/taichi/program.h'
-    - '../../c_api/include/taichi/frontend_ir.h'
+    - '../../c_api/include/taichi/taichi.h'
   include-directives:
+    - '**taichi_core.h'
     - '**program.h'
     - '**frontend_ir.h'
 name: 'TaichiCore'

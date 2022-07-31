@@ -1,11 +1,12 @@
 #ifndef __INCLUDE_C_API_TAICHI_PROGRAM_H__
 #define __INCLUDE_C_API_TAICHI_PROGRAM_H__
 
+#include "taichi_platform.h"
+#include "taichi_core.h"
+
 #ifdef __cplusplus
 extern "C" {
 #endif // __cplusplus
-
-#include "taichi_platform.h"
 
 typedef struct ti_program_class *ti_program;
 
@@ -20,9 +21,10 @@ TI_DLL_EXPORT void TI_API_CALL ti_init_dirs(const char *compiled_lib_dir, const 
 /**
  * Create a new Taichi Program.
  *
+ * @param arch The back-end architecture of the program.
  * @return The program that's created. Returns NULL when failed.
  */
-TI_DLL_EXPORT ti_program TI_API_CALL ti_program_create(void);
+TI_DLL_EXPORT ti_program TI_API_CALL ti_program_create(TiArch arch);
 
 /**
  * Adds a reference to a Taichi Program object.

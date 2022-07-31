@@ -1,9 +1,11 @@
-#pragma once
-#include <taichi/taichi_platform.h>
+#ifndef __INCLUDE_TAICHI_TAICHI_CORE_H__
+#define __INCLUDE_TAICHI_TAICHI_CORE_H__
+
+#include "taichi_platform.h"
 
 #ifdef __cplusplus
 extern "C" {
-#endif  // __cplusplus
+#endif // __cplusplus
 
 // alias.bool
 typedef uint32_t TiBool;
@@ -39,7 +41,7 @@ typedef struct TiKernel_t *TiKernel;
 typedef struct TiComputeGraph_t *TiComputeGraph;
 
 // enumeration.arch
-typedef enum TiArch {
+typedef enum {
   TI_ARCH_X64 = 0,
   TI_ARCH_ARM64 = 1,
   TI_ARCH_JS = 2,
@@ -56,7 +58,7 @@ typedef enum TiArch {
 } TiArch;
 
 // enumeration.data_type
-typedef enum TiDataType {
+typedef enum {
   TI_DATA_TYPE_F16 = 0,
   TI_DATA_TYPE_F32 = 1,
   TI_DATA_TYPE_F64 = 2,
@@ -75,7 +77,7 @@ typedef enum TiDataType {
 } TiDataType;
 
 // enumeration.argument_type
-typedef enum TiArgumentType {
+typedef enum {
   TI_ARGUMENT_TYPE_I32 = 0,
   TI_ARGUMENT_TYPE_F32 = 1,
   TI_ARGUMENT_TYPE_NDARRAY = 2,
@@ -83,7 +85,7 @@ typedef enum TiArgumentType {
 } TiArgumentType;
 
 // bit_field.memory_usage
-typedef enum TiMemoryUsageFlagBits {
+typedef enum {
   TI_MEMORY_USAGE_STORAGE_BIT = 1 << 0,
   TI_MEMORY_USAGE_UNIFORM_BIT = 1 << 1,
   TI_MEMORY_USAGE_VERTEX_BIT = 1 << 2,
@@ -92,7 +94,7 @@ typedef enum TiMemoryUsageFlagBits {
 typedef TiFlags TiMemoryUsageFlags;
 
 // structure.memory_allocate_info
-typedef struct TiMemoryAllocateInfo {
+typedef struct {
   uint64_t size;
   TiBool host_write;
   TiBool host_read;
@@ -101,20 +103,20 @@ typedef struct TiMemoryAllocateInfo {
 } TiMemoryAllocateInfo;
 
 // structure.memory_slice
-typedef struct TiMemorySlice {
+typedef struct {
   TiMemory memory;
   uint64_t offset;
   uint64_t size;
 } TiMemorySlice;
 
 // structure.nd_shape
-typedef struct TiNdShape {
+typedef struct {
   uint32_t dim_count;
   uint32_t dims[16];
 } TiNdShape;
 
 // structure.nd_array
-typedef struct TiNdArray {
+typedef struct {
   TiMemory memory;
   TiNdShape shape;
   TiNdShape elem_shape;
@@ -122,20 +124,20 @@ typedef struct TiNdArray {
 } TiNdArray;
 
 // union.argument_value
-typedef union TiArgumentValue {
+typedef union {
   int32_t i32;
   float f32;
   TiNdArray ndarray;
 } TiArgumentValue;
 
 // structure.argument
-typedef struct TiArgument {
+typedef struct {
   TiArgumentType type;
   TiArgumentValue value;
 } TiArgument;
 
 // structure.named_argument
-typedef struct TiNamedArgument {
+typedef struct {
   const char *name;
   TiArgument argument;
 } TiNamedArgument;
@@ -219,3 +221,4 @@ ti_get_aot_module_compute_graph(TiAotModule aot_module, const char *name);
 #ifdef __cplusplus
 }  // extern "C"
 #endif  // __cplusplus
+#endif // __INCLUDE_TAICHI_TAICHI_CORE_H__
