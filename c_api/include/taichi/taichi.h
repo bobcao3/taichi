@@ -6,6 +6,7 @@
 #include "taichi_core.h"
 
 #include "program.h"
+#include "frontend_ir.h"
 
 #if TI_WITH_VULKAN
 #define VK_NO_PROTOTYPES 1
