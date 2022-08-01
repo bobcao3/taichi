@@ -3,6 +3,7 @@
 #include "taichi/ir/expr.h"
 #include "taichi/ir/statements.h"
 #include "taichi/ir/frontend_ir.h"
+#include "taichi/ir/transforms.h"
 
 #define MAKE_STMT(name, ...) \
   TI_DLL_EXPORT ti_stmt TI_API_CALL ti_make_stmt_##name(__VA_ARGS__)
@@ -35,6 +36,8 @@ std::vector<Expr> exprptrs_to_vec_expr(int n, ti_expr *exprs) {
   std::vector<Expr> v_exprs(n);
   for (int i = 0; i < n; i++) {
     v_exprs[i] = to_cpp(exprs[i]);
+    ti_release_expr(exprs[i]);
+    exprs[i] = nullptr;
   }
   return v_exprs;
 }
@@ -49,6 +52,20 @@ void ti_release_stmt(ti_stmt stmt) {
 
 void ti_release_expr(ti_expr expr) {
   delete reinterpret_cast<Expr *>(expr);
+}
+
+void ti_print_ast(ti_block root) {
+  std::string str;
+  irpass::print(reinterpret_cast<Block *>(root), &str);
+  TI_WARN("AST: \n{}", str);
+}
+
+ti_block ti_make_block(int n_stmts, ti_stmt *stmts) {
+  Block *b = new Block;
+  for (int i = 0; i < n_stmts; i++) {
+    b->insert(std::unique_ptr<Stmt>(to_cpp(stmts[i])));
+  }
+  return ti_block(b);
 }
 
 MAKE_STMT(frontend_external_func,
@@ -97,12 +114,17 @@ MAKE_STMT(frontend_continue) {
   TI_NOT_IMPLEMENTED;
 }
 
-MAKE_STMT(frontend_alloca) {
-  TI_NOT_IMPLEMENTED;
+MAKE_STMT(frontend_alloca, int id, const char *name, TiDataType dtype) {
+  std::unique_ptr<Stmt> stmt = Stmt::make<FrontendAllocaStmt>(
+      Identifier(id, std::string(name)),
+      PrimitiveType::get(PrimitiveTypeID(dtype)));
+  return to_cptr(stmt);
 }
 
-MAKE_STMT(frontend_assign) {
-  TI_NOT_IMPLEMENTED;
+MAKE_STMT(frontend_assign, ti_expr lhs, ti_expr val) {
+  std::unique_ptr<Stmt> stmt =
+      Stmt::make<FrontendAssignStmt>(to_cpp(lhs), to_cpp(val));
+  return to_cptr(stmt);
 }
 
 MAKE_STMT(frontend_eval) {
@@ -141,8 +163,13 @@ MAKE_EXPR(unary_op) {
 }
 
 MAKE_EXPR(binary_op, ti_binary_op op, ti_expr lhs, ti_expr rhs) {
-  return to_cptr(Expr::make<BinaryOpExpression>(BinaryOpType(op), to_cpp(lhs),
-                                                to_cpp(rhs)));
+  Expr expr_lhs = to_cpp(lhs);
+  Expr expr_rhs = to_cpp(rhs);
+  ti_expr expr = to_cptr(
+      Expr::make<BinaryOpExpression>(BinaryOpType(op), expr_lhs, expr_rhs));
+  ti_release_expr(lhs);
+  ti_release_expr(rhs);
+  return expr;
 }
 
 MAKE_EXPR(ternary_op) {

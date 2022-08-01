@@ -8,6 +8,13 @@
 using taichi::Arch;
 using namespace taichi::lang;
 
+namespace {
+
+static std::mutex kernels_lock;
+static std::vector<FunctionType> registered_kernels;
+
+}
+
 extern "C" {
 
 void ti_init_dirs(const char *_compiled_lib_dir, const char *_runtime_tmp_dir) {
@@ -35,6 +42,31 @@ void ti_program_add_ref(ti_program program) {
 
 void ti_program_release(ti_program program) {
     RefCounted::release(reinterpret_cast<Program*>(program));
+}
+
+ti_kernel ti_kernel_create(ti_program program, ti_block ast_node, const char *name) {
+  Block *block_node_cptr = reinterpret_cast<Block *>(ast_node);
+  std::unique_ptr<IRNode> block = std::unique_ptr<Block>(block_node_cptr);
+  
+  Kernel *k = new Kernel(*reinterpret_cast<Program *>(program), std::move(block),
+                         name ? std::string(name) : "", AutodiffMode::kNone, true);
+  RefCounted::new_ref_counted(k);
+
+  return ti_kernel(k);
+}
+
+int ti_program_compile_kernel(ti_program program, ti_kernel kernel) {
+  auto f = reinterpret_cast<Program *>(program)->compile(*reinterpret_cast<Kernel *>(kernel));
+  
+  std::lock_guard<std::mutex> lg(kernels_lock);
+  int id = int(registered_kernels.size());
+  registered_kernels.push_back(f);
+
+  return id;
+}
+
+void ti_program_launch_kernel(int id, void *runtime_context) {
+  registered_kernels[id](*reinterpret_cast<RuntimeContext *>(runtime_context));
 }
 
 }

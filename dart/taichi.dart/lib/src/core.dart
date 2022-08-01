@@ -35,7 +35,7 @@ void init() {
   malloc.free(runtimeTmpDirCStr);
 
   // Create taichi::lang::Program
-  _program = ticore.ti_program_create(TiArch.TI_ARCH_X64);
+  _program = ticore.ti_program_create(TiArch.TI_ARCH_VULKAN);
   ticore.ti_program_materialize_runtime(program);
 }
 

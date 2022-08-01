@@ -83,7 +83,8 @@ class TI_DLL_EXPORT Kernel : public Callable {
   Kernel(Program &program,
          std::unique_ptr<IRNode> &&ir,
          const std::string &name = "",
-         AutodiffMode autodiff_mode = AutodiffMode::kNone);
+         AutodiffMode autodiff_mode = AutodiffMode::kNone,
+         bool ir_is_ast = false);
 
   bool lowered() const {
     return lowered_;

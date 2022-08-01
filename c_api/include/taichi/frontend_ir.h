@@ -9,6 +9,7 @@ extern "C" {
 #endif // __cplusplus
   
 typedef struct ti_ast_builder_class *ti_ast_builder;
+typedef struct ti_block_class *ti_block;
 typedef struct ti_expr_class *ti_expr;
 typedef struct ti_stmt_class *ti_stmt;
 
@@ -51,6 +52,10 @@ typedef enum {
 TI_DLL_EXPORT void TI_API_CALL ti_release_stmt(ti_stmt stmt);
 TI_DLL_EXPORT void TI_API_CALL ti_release_expr(ti_expr expr);
 
+TI_DLL_EXPORT void TI_API_CALL ti_print_ast(ti_block root);
+
+TI_DLL_EXPORT ti_block TI_API_CALL ti_make_block(int n_stmts, ti_stmt *stmts);
+
 MAKE_STMT(frontend_external_func,
           void *func_addr,
           const char *asm_source,
@@ -67,8 +72,8 @@ MAKE_STMT(frontend_print);
 MAKE_STMT(frontend_while);
 MAKE_STMT(frontend_break);
 MAKE_STMT(frontend_continue);
-MAKE_STMT(frontend_alloca);
-MAKE_STMT(frontend_assign);
+MAKE_STMT(frontend_alloca, int id, const char *name, TiDataType dtype);
+MAKE_STMT(frontend_assign, ti_expr lhs, ti_expr val);
 MAKE_STMT(frontend_eval);
 MAKE_STMT(frontend_snode_op);
 MAKE_STMT(frontend_assert);

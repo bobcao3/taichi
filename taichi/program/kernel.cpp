@@ -36,14 +36,15 @@ Kernel::Kernel(Program &program,
 Kernel::Kernel(Program &program,
                std::unique_ptr<IRNode> &&ir,
                const std::string &primal_name,
-               AutodiffMode autodiff_mode)
+               AutodiffMode autodiff_mode,
+               bool ir_is_ast)
     : autodiff_mode(autodiff_mode), lowered_(false) {
   this->ir = std::move(ir);
   this->program = &program;
   is_accessor = false;
   is_evaluator = false;
   compiled_ = nullptr;
-  ir_is_ast_ = false;  // CHI IR
+  ir_is_ast_ = ir_is_ast;  // CHI IR / AST
   this->ir->as<Block>()->kernel = this;
 
   arch = program.config.arch;
